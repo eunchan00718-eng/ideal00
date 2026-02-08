@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ideal | AI Perfume Search</title>
+    <style>
+        /* 배경 이미지 설정 */
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 15vh;
+            /* 여기에 배경 이미지를 넣었습니다 */
+            background-image: url('https://i.ibb.co/7WvJ2Z5/image-1.png'); 
+            background-size: cover; /* 화면을 가득 채우도록 */
+            background-position: center; /* 중앙 정렬 */
+            background-repeat: no-repeat; /* 반복하지 않음 */
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            min-height: 100vh; /* 화면 높이만큼 최소 높이 설정 */
+        }
+
+        /* 투명한 상단 문구 (배경과 어울리게 색상 조정) */
+        .sub-header {
+            color: rgba(0, 0, 0, 0.4); /* 약간 더 진하게 */
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        /* 로고 (배경과 어울리게 색상 조정) */
+        .logo {
+            font-size: 75px;
+            font-weight: 900;
+            color: #4285F4; /* 구글 블루 유지 */
+            margin-bottom: 35px;
+            letter-spacing: -2px;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5); /* 약간의 그림자 */
+        }
+
+        .search-wrapper {
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.9); /* 검색창 배경 투명도 추가 */
+            border-radius: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 55px 14px 25px;
+            font-size: 16px;
+            border: 1px solid #dfe1e5;
+            border-radius: 30px;
+            outline: none;
+            background: transparent; /* 입력창 배경 투명하게 */
+        }
+
+        .search-input:focus {
+            box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+        }
+
+        /* 돋보기를 오른쪽 끝에 배치 */
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            color: #9aa0a6;
+            cursor: pointer;
+        }
+
+        /* 검색창 바로 아래 결과창 */
+        #result-area {
+            width: 100%;
+            margin-top: 20px;
+            padding: 25px;
+            border-radius: 20px;
+            background-color: rgba(241, 243, 244, 0.95); /* 결과창 배경 투명도 */
+            display: none; /* 초기 상태 숨김 */
+            color: #3c4043;
+            line-height: 1.7;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* 3초마다 바뀌는 투명 문구 */
+        #rotateMsg {
+            margin-top: 20px;
+            text-align: center;
+            color: rgba(0, 0, 0, 0.5);
+            font-size: 14px;
+            transition: opacity 0.5s;
+        }
+
+        .options {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .options a {
+            display: block;
+            color: #1a0dab;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sub-header">나보다 나를 더 잘 아는 AI가 추천해주는 이상적인 향수 검색 웹 사이트</div>
+    <div class="logo">ideal</div>
+
+    <div class="search-wrapper">
+        <div class="search-box">
+            <input type="text" id="userInput" class="search-input" placeholder="나 자신을 나타내는 단어를 입력해봐">
+            <svg class="search-icon" onclick="askGemini()" viewBox="0 0 24 24" width="24" height="24">
+                <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+            </svg>
+        </div>
+
+        <div id="result-area"></div>
+
+        <div id="rotateMsg">나 자신을 나타내는 단어나 문장을 입력해 주세요.</div>
+    </div>
+
+    <div class="options">
+        <a>다른 사람의 관점에서 보는 나에게 어울리는 향 알아보기</a>
+        <a>Gemini가 알려주는 나를 표현할 수 있는 키워드 리스트</a>
+    </div>
+
+    <script>
+        // 문구 순환 로직
+        const msgs = [
+            "나 자신을 나타내는 단어나 문장을 입력해 주세요.",
+            "관심있는 이성이 좋아할만한 향수 바로 찾기",
+            "Gemini가 사람들이 즐겨찾는 향수를 알려줄게요"
+        ];
+        let idx = 0;
+        setInterval(() => {
+            idx = (idx + 1) % msgs.length;
+            const msgEl = document.getElementById('rotateMsg');
+            msgEl.style.opacity = 0;
+            setTimeout(() => {
+                msgEl.innerText = msgs[idx];
+                msgEl.style.opacity = 1;
+            }, 500);
+        }, 3000);
+
+        // 검색 함수 (시뮬레이션)
+        async function askGemini() {
+            const input = document.getElementById('userInput').value;
+            const resultArea = document.getElementById('result-area');
+
+            if(!input) return;
+
+            // 로딩 상태 보여주기
+            resultArea.style.display = "block";
+            resultArea.innerHTML = "<b>분석 중이야, 잠시만 기다려봐... ✨</b>";
+
+            // [나중에 API 연결할 부분]
+            // 지금은 API가 없으므로 시뮬레이션으로 작동합니다.
+            setTimeout(() => {
+                resultArea.innerHTML = `
+                    <div style="font-weight: bold; font-size: 1.1em; margin-bottom: 10px;">🌸 향언니의 추천</div>
+                    헐, '<b>${input}</b>'이라니! 너 분위기 진짜 대박이다... <br><br>
+                    내가 보기에 넌 <b>'햇살 가득한 창가에 놓인 하얀 셔츠'</b> 같은 느낌이야. <br>
+                    너한테는 <b>[바이레도 - 블랑쉬]</b>가 완전 찰떡일 것 같아! 깨끗하면서도 포근해서 네 이미지랑 너무 잘 어울려. 
+                    <br><br>
+                    <span style="color: #4285F4; cursor: pointer; text-decoration: underline;">👉 네 '반전 매력' 카테고리도 하나 더 추가해줄까?</span>
+                `;
+            }, 1500);
+        }
+
+        // 엔터키 지원
+        document.getElementById('userInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') askGemini();
+        });
+    </script>
+</body>
+</html>

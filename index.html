@@ -95,7 +95,6 @@
     </div>
 
     <script>
-        // Gemini API Key 입력 (100번 줄 근처)
         const GEMINI_API_KEY = "AIzaSyDI4acX8Xb9ysMBZjKh5OyY4VTaY-kRwqA";
         let currentResult = "";
 
@@ -110,7 +109,6 @@
             aiContent.innerHTML = "<b>너의 이미지를 분석 중이야... ✨</b>";
             heart.classList.remove('active');
 
-            // 💡 404 및 308 오류를 방지하는 최적화된 주소 형식
             const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="+ GEMINI_API_KEY;
 
             try {

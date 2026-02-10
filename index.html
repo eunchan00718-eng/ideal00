@@ -4,77 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ideal | AI Perfume Search</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Pretendard:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
     <style>
         body {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 15vh;
-            /* 사용자님이 보내주신 핑크 구름 이미지 파일명입니다. */
-            background-image: url('Gemini_Generated_Image_yyx2ecyyx2ecyyx2.jpg'); 
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            font-family: 'Pretendard', -apple-system, sans-serif;
-            min-height: 100vh;
+            margin: 0; display: flex; flex-direction: column; align-items: center; padding-top: 10vh;
+            background-image: url('Gemini_Generated_Image_yyx2ecyyx2ecyyx2.png'); 
+            background-size: cover; background-position: center; background-attachment: fixed;
+            font-family: 'Pretendard', sans-serif; min-height: 100vh;
         }
 
-        #login-status {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.7);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            color: #555;
+        /* 우측 상단 유저 영역 */
+        .top-right-container { position: absolute; top: 20px; right: 20px; z-index: 1000; display: flex; align-items: center; gap: 10px; }
+        
+        #user-info { 
+            display: none; background: rgba(255, 255, 255, 0.9); padding: 5px 12px; 
+            border-radius: 30px; font-size: 13px; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #user-pic { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid #eee; }
+
+        /* 로고 디자인 (검정 필기체 + 흰색 외곽선) */
+        .logo { 
+            font-family: 'Dancing Script', cursive; font-size: clamp(50px, 15vw, 90px); 
+            font-weight: 700; color: #000; margin-bottom: 25px; text-align: center;
+            text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+            cursor: pointer;
         }
 
-        .sub-header { color: rgba(0, 0, 0, 0.4); font-size: 13px; margin-bottom: 8px; }
-        .logo { font-size: 80px; font-weight: 900; color: #4285F4; margin-bottom: 35px; letter-spacing: -2px; }
-
-        .search-wrapper { width: 90%; max-width: 600px; }
-        .search-box { position: relative; display: flex; align-items: center; background-color: rgba(255, 255, 255, 0.9); border-radius: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .search-input { width: 100%; padding: 14px 55px 14px 25px; font-size: 16px; border: 1px solid #dfe1e5; border-radius: 30px; outline: none; background: transparent; }
-
+        .sub-header { color: rgba(0, 0, 0, 0.6); font-size: clamp(11px, 3vw, 13px); margin-bottom: 10px; text-align: center; padding: 0 20px; }
+        .search-wrapper { width: 90%; max-width: 580px; position: relative; }
+        .search-box { display: flex; align-items: center; background: rgba(255, 255, 255, 0.9); border-radius: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .search-input { width: 100%; padding: 15px 55px 15px 25px; font-size: 16px; border: 1px solid #dfe1e5; border-radius: 30px; outline: none; background: transparent; }
         .search-icon { position: absolute; right: 20px; color: #9aa0a6; cursor: pointer; }
 
-        #result-area {
-            width: 100%;
-            margin-top: 20px;
-            padding: 25px;
-            border-radius: 20px;
-            background-color: rgba(255, 255, 255, 0.95);
-            display: none; 
-            color: #3c4043;
-            line-height: 1.7;
-            border: 1px solid #eee;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        /* 결과창 및 하트 버튼 */
+        #result-area { 
+            width: 100%; margin-top: 20px; padding: 25px; border-radius: 20px; 
+            background: rgba(255, 255, 255, 0.95); display: none; position: relative;
+            line-height: 1.8; color: #3c4043; border: 1px solid #eee; box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
         }
+        .heart-btn { 
+            position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; 
+            color: #ccc; transition: transform 0.2s; 
+        }
+        .heart-btn.active { color: #ff4b2b; transform: scale(1.2); }
 
-        #rotateMsg { margin-top: 20px; text-align: center; color: rgba(0, 0, 0, 0.5); font-size: 14px; transition: opacity 0.5s; }
-        .options { margin-top: 50px; text-align: center; }
-        .options a { display: block; color: #1a0dab; text-decoration: none; font-size: 14px; margin-bottom: 15px; cursor: pointer; }
-        .options a:hover { text-decoration: underline; }
+        #rotateMsg { margin-top: 20px; text-align: center; color: rgba(0, 0, 0, 0.6); font-size: 13px; }
+        .options { margin-top: 40px; text-align: center; }
+        .options a { display: block; color: #1a0dab; text-decoration: none; font-size: 13px; margin-bottom: 12px; cursor: pointer; }
+
+        @media (max-width: 600px) {
+            body { padding-top: 15vh; }
+            .top-right-container { top: 15px; right: 15px; scale: 0.85; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="login-status">● 자동 로그인 완료 (Guest)</div>
+    <div class="top-right-container">
+        <div id="g_id_onload" 
+             data-client_id="4623512319-mergahsri0chgr06sqnh3d8fh7igmj59.apps.googleusercontent.com" 
+             data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
+        
+        <div id="user-info">
+            <img id="user-pic" src="" alt="Profile">
+            <span id="user-name"></span>
+        </div>
+    </div>
 
     <div class="sub-header">나보다 나를 더 잘 아는 AI가 추천해주는 이상적인 향수 검색 웹 사이트</div>
-    <div class="logo">ideal</div>
+    <div class="logo" onclick="location.reload()">ideal</div>
 
     <div class="search-wrapper">
         <div class="search-box">
-            <input type="text" id="userInput" class="search-input" placeholder="나 자신을 나타내는 단어를 입력해봐" oninput="checkInput()">
+            <input type="text" id="userInput" class="search-input" placeholder="너의 분위기를 한 단어로 말해봐" oninput="checkInput()">
             <svg class="search-icon" onclick="askGemini()" viewBox="0 0 24 24" width="24" height="24">
                 <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
             </svg>
         </div>
-        <div id="result-area"></div>
+        
+        <div id="result-area">
+            <div class="heart-btn" id="heart" onclick="toggleSave()">♥</div>
+            <div id="ai-content"></div>
+        </div>
+        
         <div id="rotateMsg">나 자신을 나타내는 단어나 문장을 입력해 주세요.</div>
     </div>
 
@@ -84,57 +100,70 @@
     </div>
 
     <script>
-        const msgs = ["나 자신을 나타내는 단어나 문장을 입력해 주세요.", "관심있는 이성이 좋아할만한 향수 바로 찾기", "Gemini가 사람들이 즐겨찾는 향수를 알려줄게요"];
-        let idx = 0;
-        setInterval(() => {
-            idx = (idx + 1) % msgs.length;
-            const msgEl = document.getElementById('rotateMsg');
-            msgEl.style.opacity = 0;
-            setTimeout(() => { msgEl.innerText = msgs[idx]; msgEl.style.opacity = 1; }, 500);
-        }, 3000);
+        // [100번 줄 근처] Gemini API 키 입력 자리
+        const GEMINI_API_KEY = "AIzaSyDeLVvavm2FjQnqWNOQkOc8fN9gV69olMY"; 
 
-        function checkInput() {
-            const input = document.getElementById('userInput').value;
-            if (!input) document.getElementById('result-area').style.display = "none";
-        }
-
-        function quickSearch(text) {
-            document.getElementById('userInput').value = text;
-            askGemini();
-        }
+        let currentResult = ""; // 현재 추천된 내용을 저장할 변수
 
         async function askGemini() {
             const input = document.getElementById('userInput').value;
             const resultArea = document.getElementById('result-area');
+            const aiContent = document.getElementById('ai-content');
+            const heart = document.getElementById('heart');
+
             if(!input) return;
 
             resultArea.style.display = "block";
-            resultArea.innerHTML = "<b>너의 이미지를 분석 중이야, 잠시만 기다려줘... ✨</b>";
+            aiContent.innerHTML = "<b>너의 이미지를 분석 중이야... ✨</b>";
+            heart.classList.remove('active'); // 새 검색 시 하트 초기화
 
-            const API_KEY = "AIzaSyD_gWJMIWB608Ll9Ud0qfpMp7kf4KFIUCs"; 
-            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
             try {
                 const response = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `너는 21살 친한 언니 컨셉의 향수 전문가야. 말투는 '~해', '~야' 같은 반말을 섞어서 아주 친근하고 다정하게 대답해줘. 사용자의 입력 '${input}'을 바탕으로 찰떡인 향수를 딱 하나만 추천해주고, 그 이유를 감성적으로 설명해줘. 답변 시작은 반드시 '나의 추천'으로 시작해줘.` }] }]
+                        contents: [{ parts: [{ text: `너는 21살 친한 언니 컨셉의 향수 전문가야. '${input}' 분위기에 찰떡인 향수 하나를 추천해주고 친근한 반말로 설명해줘. 구매 링크(네이버 쇼핑, 쿠팡 등)도 포함해줘. 답변 시작은 '나의 추천'으로 해.` }] }]
                     })
                 });
 
                 const data = await response.json();
-                const aiResponse = data.candidates[0].content.parts[0].text;
-                
-                // 마크다운 기호 제거
-                const cleanResponse = aiResponse.replace(/[*#]/g, '');
-                resultArea.innerHTML = `<div style="font-weight: bold; font-size: 1.2em; margin-bottom: 12px; color: #4285F4;">🌸 나의 추천</div>${cleanResponse}`;
+                currentResult = data.candidates[0].content.parts[0].text.replace(/[*#]/g, '');
+                aiContent.innerHTML = `<div style="font-weight: bold; font-size: 1.1em; margin-bottom: 10px; color: #4285F4;">🌸 나의 추천</div>${currentResult}`;
             } catch (error) {
-                resultArea.innerHTML = "앗, 에러가 났어! API 키를 다시 확인해줄래?";
+                aiContent.innerHTML = "앗, 에러가 났어! 키 확인 부탁해. 😢";
             }
         }
 
-        document.getElementById('userInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') askGemini(); });
+        // 찜하기 기능 (로컬 스토리지 저장)
+        function toggleSave() {
+            const heart = document.getElementById('heart');
+            heart.classList.toggle('active');
+            
+            if (heart.classList.contains('active')) {
+                localStorage.setItem('savedPerfume', currentResult);
+                alert("이 향수를 찜했어! 나중에 다시 볼 수 있게 저장해둘게. 😉");
+            } else {
+                localStorage.removeItem('savedPerfume');
+            }
+        }
+
+        function handleCredentialResponse(response) {
+            const payload = parseJwt(response.credential);
+            document.getElementById('user-name').innerText = payload.name + "님, 안녕! 👋";
+            document.getElementById('user-pic').src = payload.picture;
+            document.getElementById('user-info').style.display = 'flex';
+            document.querySelector('.g_id_signin').style.display = 'none';
+        }
+
+        function parseJwt(t){var r=t.split(".")[1],n=r.replace(/-/g,"+").replace(/_/g,"/"),o=decodeURIComponent(window.atob(n).split("").map(function(t){return"%"+("00"+t.charCodeAt(0).toString(16)).slice(-2)}).join(""));return JSON.parse(o)}
+        function checkInput(){if(!document.getElementById('userInput').value)document.getElementById('result-area').style.display="none"}
+        function quickSearch(t){document.getElementById('userInput').value=t;askGemini()}
+        document.getElementById('userInput').addEventListener('keypress',e=>{if("Enter"===e.key)askGemini()});
+
+        const msgs = ["나 자신을 나타내는 단어나 문장을 입력해 주세요.", "관심있는 이성이 좋아할만한 향수 바로 찾기", "Gemini가 알려주는 어울리는 향기"];
+        let idx = 0; setInterval(() => { idx = (idx + 1) % msgs.length; const msgEl = document.getElementById('rotateMsg'); msgEl.style.opacity = 0; setTimeout(() => { msgEl.innerText = msgs[idx]; msgEl.style.opacity = 1; }, 500); }, 3000);
     </script>
 </body>
 </html>

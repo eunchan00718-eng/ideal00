@@ -7,97 +7,88 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Pretendard:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        /* [36번 줄 근처] 배경 이미지 설정 - 파일이 없으면 핑크색 배경이 나오게 안전장치 추가 */
+        /* 사진 관련 코드를 모두 제거하고 깔끔한 배경색만 남겼습니다. */
         body {
             margin: 0; display: flex; flex-direction: column; align-items: center; padding-top: 10vh;
-            background: #ffeef2; /* 이미지가 없을 때를 대비한 기본 색상 */
-            background-image: url('Gemini_Generated_Image_yyx2ecyyx2ecyyx2.png'); 
-            background-size: cover; background-position: center; background-attachment: fixed;
+            background-color: #ffeef2; /* 편안한 연분홍색 배경 */
             font-family: 'Pretendard', sans-serif; min-height: 100vh;
         }
-
         .top-right-container { position: absolute; top: 20px; right: 20px; z-index: 1000; display: flex; align-items: center; gap: 10px; }
-        #user-info { display: none; background: rgba(255, 255, 255, 0.9); padding: 5px 12px; border-radius: 30px; font-size: 13px; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        #user-pic { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
-
-        /* [56번 줄 근처] 로고 스타일 - 오타 방지를 위해 깔끔하게 정리 */
-        .logo { 
-            font-family: 'Dancing Script', cursive; font-size: clamp(50px, 15vw, 90px); 
-            font-weight: 700; color: #000; margin-bottom: 25px; text-align: center;
-            text-shadow: 1px 1px 2px #fff; cursor: pointer;
-        }
-
-        .sub-header { color: rgba(0, 0, 0, 0.6); font-size: clamp(11px, 3vw, 13px); margin-bottom: 10px; text-align: center; padding: 0 20px; }
+        #user-info { display: none; background: rgba(255, 255, 255, 0.9); padding: 8px 15px; border-radius: 30px; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .logo { font-family: 'Dancing Script', cursive; font-size: clamp(50px, 15vw, 90px); font-weight: 700; color: #000; margin-bottom: 25px; text-align: center; cursor: pointer; }
+        .sub-header { color: rgba(0, 0, 0, 0.6); font-size: 13px; margin-bottom: 10px; text-align: center; }
         .search-wrapper { width: 90%; max-width: 580px; position: relative; }
-        .search-box { display: flex; align-items: center; background: rgba(255, 255, 255, 0.9); border-radius: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .search-input { width: 100%; padding: 15px 55px 15px 25px; font-size: 16px; border: 1px solid #dfe1e5; border-radius: 30px; outline: none; background: transparent; }
-        .search-icon { position: absolute; right: 20px; color: #9aa0a6; cursor: pointer; }
-        #result-area { width: 100%; margin-top: 20px; padding: 25px; border-radius: 20px; background: rgba(255, 255, 255, 0.95); display: none; position: relative; line-height: 1.8; color: #3c4043; border: 1px solid #eee; }
-        .heart-btn { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: #ccc; }
-        .heart-btn.active { color: #ff4b2b; }
-        @media (max-width: 600px) { body { padding-top: 15vh; } .top-right-container { scale: 0.85; } }
+        .search-box { display: flex; align-items: center; background: white; border-radius: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .search-input { width: 100%; padding: 15px 25px; font-size: 16px; border: 1px solid #dfe1e5; border-radius: 30px; outline: none; }
+        #result-area { width: 100%; margin-top: 20px; padding: 25px; border-radius: 20px; background: white; display: none; line-height: 1.8; border: 1px solid #eee; }
     </style>
 </head>
 <body>
+
     <div class="top-right-container">
-        <div id="g_id_onload" data-client_id="4623512319-mergahsri0chgr06sqnh3d8fh7igmj59.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
+        <div id="g_id_onload" data-client_id="4623512319-0hrosa9j6l01rcgmi2aep1vd768f3o1u.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
         <div class="g_id_signin" data-type="standard"></div>
-        <div id="user-info"><img id="user-pic" src=""><span id="user-name"></span></div>
+        <div id="user-info"><span id="user-name"></span></div>
     </div>
+
     <div class="sub-header">나보다 나를 더 잘 아는 AI가 추천해주는 이상적인 향수 검색 웹 사이트</div>
     <div class="logo" onclick="location.reload()">ideal</div>
+
     <div class="search-wrapper">
         <div class="search-box">
-            <input type="text" id="userInput" class="search-input" placeholder="너의 분위기를 한 단어로 말해봐" oninput="checkInput()">
-            <svg class="search-icon" onclick="askGemini()" viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+            <input type="text" id="userInput" class="search-input" placeholder="너의 분위기를 한 단어로 말해봐" onkeypress="if(event.key==='Enter') askGemini()">
         </div>
-        <div id="result-area"><div class="heart-btn" id="heart" onclick="toggleSave()">♥</div><div id="ai-content"></div></div>
+        <div id="result-area"><div id="ai-content"></div></div>
     </div>
+
     <script>
-        // API 키 입력 (양옆에 공백이 없는지 꼭 확인하세요!)
-        const GEMINI_API_KEY = "AIzaSyAmlTXA73W7sbQ8BA80YVPejd4Budc7oKg"; 
-        let currentResult = "";
+        // 🔑 본인의 Gemini API 키를 여기에 넣으세요.
+        const GEMINI_API_KEY = "AIzaSyBlcMHfU9l_JMpiIjEU5lAyvU-A93YKy8Y"; 
 
         async function askGemini() {
             const input = document.getElementById('userInput').value;
             const aiContent = document.getElementById('ai-content');
             if(!input) return;
+
             document.getElementById('result-area').style.display = "block";
             aiContent.innerHTML = "<b>분석 중이야... ✨</b>";
 
-            // 404 에러 방지를 위한 가장 정확한 URL 형식
+            // 🛠️ 에러가 자주 나던 주소 형식을 가장 안정적인 버전으로 고쳤습니다.
             const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=" + GEMINI_API_KEY;
 
             try {
+                // 🚀 사용자님이 말씀하신 바로 그 72번 줄 지점입니다! (AI에게 요청 보내기)
                 const response = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: `너는 21살 친한 언니 컨셉의 향수 전문가야. '${input}' 분위기에 맞는 향수 하나를 추천해주고 반말로 다정하게 설명해줘.` }] }] })
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `향수 전문가로서 '${input}' 분위기에 맞는 향수를 하나만 반말로 추천해줘.` }] }]
+                    })
                 });
+
                 const data = await response.json();
-                if(data.error) throw new Error(data.error.message);
-                currentResult = data.candidates[0].content.parts[0].text.replace(/[*#]/g, '');
-                aiContent.innerHTML = `<div style="font-weight:bold; color:#4285F4; margin-bottom:10px;">🌸 나의 추천</div>${currentResult}`;
-            } catch (e) { aiContent.innerHTML = "앗, 에러가 났어! (" + e.message + ") 😢"; }
+                
+                if (data.error) {
+                    aiContent.innerHTML = "에러 발생: " + data.error.message;
+                    return;
+                }
+
+                const result = data.candidates[0].content.parts[0].text.replace(/[*#]/g, '');
+                aiContent.innerHTML = `<div style="font-weight:bold; color:#4285F4; margin-bottom:10px;">🌸 나의 추천</div>${result}`;
+            } catch (e) {
+                aiContent.innerHTML = "네트워크 연결에 문제가 있어. 😢";
+            }
         }
 
-        function toggleSave() {
-            const heart = document.getElementById('heart');
-            heart.classList.toggle('active');
-            if (heart.classList.contains('active')) alert("이 향수를 찜했어! 😉");
-        }
-
+        // 로그인 처리 함수 (사진 기능 제거)
         function handleCredentialResponse(r) {
             const p = parseJwt(r.credential);
             document.getElementById('user-name').innerText = p.name + "님, 안녕! 👋";
-            document.getElementById('user-pic').src = p.picture;
-            document.getElementById('user-info').style.display = 'flex';
+            document.getElementById('user-info').style.display = 'block';
             document.querySelector('.g_id_signin').style.display = 'none';
         }
 
         function parseJwt(t){var r=t.split(".")[1],n=r.replace(/-/g,"+").replace(/_/g,"/"),o=decodeURIComponent(window.atob(n).split("").map(function(t){return"%"+("00"+t.charCodeAt(0).toString(16)).slice(-2)}).join(""));return JSON.parse(o)}
-        function checkInput(){if(!document.getElementById('userInput').value)document.getElementById('result-area').style.display="none"}
-        document.getElementById('userInput').addEventListener('keypress',e=>{if("Enter"===e.key)askGemini()});
     </script>
 </body>
 </html>

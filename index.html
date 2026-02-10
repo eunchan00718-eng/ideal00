@@ -7,24 +7,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Pretendard:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body { margin: 0; display: flex; flex-direction: column; align-items: center; padding-top: 10vh; background-image: url('Gemini_Generated_Image_yyx2ecyyx2ecyyx2.png'); background-size: cover; background-position: center; background-attachment: fixed; font-family: 'Pretendard', sans-serif; min-height: 100vh; }
+        /* [36번 줄 근처] 배경 이미지 설정 - 파일이 없으면 핑크색 배경이 나오게 안전장치 추가 */
+        body {
+            margin: 0; display: flex; flex-direction: column; align-items: center; padding-top: 10vh;
+            background: #ffeef2; /* 이미지가 없을 때를 대비한 기본 색상 */
+            background-image: url('Gemini_Generated_Image_yyx2ecyyx2ecyyx2.png'); 
+            background-size: cover; background-position: center; background-attachment: fixed;
+            font-family: 'Pretendard', sans-serif; min-height: 100vh;
+        }
+
         .top-right-container { position: absolute; top: 20px; right: 20px; z-index: 1000; display: flex; align-items: center; gap: 10px; }
         #user-info { display: none; background: rgba(255, 255, 255, 0.9); padding: 5px 12px; border-radius: 30px; font-size: 13px; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         #user-pic { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
-        .logo { font-family: 'Dancing Script', cursive; font-size: clamp(50px, 15vw, 90px); font-weight: 700; color: #000; margin-bottom: 25px; text-align: center; text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff; cursor: pointer; }
+
+        /* [56번 줄 근처] 로고 스타일 - 오타 방지를 위해 깔끔하게 정리 */
+        .logo { 
+            font-family: 'Dancing Script', cursive; font-size: clamp(50px, 15vw, 90px); 
+            font-weight: 700; color: #000; margin-bottom: 25px; text-align: center;
+            text-shadow: 1px 1px 2px #fff; cursor: pointer;
+        }
+
         .sub-header { color: rgba(0, 0, 0, 0.6); font-size: clamp(11px, 3vw, 13px); margin-bottom: 10px; text-align: center; padding: 0 20px; }
         .search-wrapper { width: 90%; max-width: 580px; position: relative; }
         .search-box { display: flex; align-items: center; background: rgba(255, 255, 255, 0.9); border-radius: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .search-input { width: 100%; padding: 15px 55px 15px 25px; font-size: 16px; border: 1px solid #dfe1e5; border-radius: 30px; outline: none; background: transparent; }
         .search-icon { position: absolute; right: 20px; color: #9aa0a6; cursor: pointer; }
-        #result-area { width: 100%; margin-top: 20px; padding: 25px; border-radius: 20px; background: rgba(255, 255, 255, 0.95); display: none; position: relative; line-height: 1.8; color: #3c4043; border: 1px solid #eee; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        #result-area { width: 100%; margin-top: 20px; padding: 25px; border-radius: 20px; background: rgba(255, 255, 255, 0.95); display: none; position: relative; line-height: 1.8; color: #3c4043; border: 1px solid #eee; }
         .heart-btn { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: #ccc; }
-        .heart-btn.active { color: #ff4b2b; transform: scale(1.2); }
+        .heart-btn.active { color: #ff4b2b; }
+        @media (max-width: 600px) { body { padding-top: 15vh; } .top-right-container { scale: 0.85; } }
     </style>
 </head>
 <body>
     <div class="top-right-container">
-        <div id="g_id_onload" data-client_id="4623512319-0hrosa9j6l01rcgmi2aep1vd768f3o1u.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
+        <div id="g_id_onload" data-client_id="4623512319-mergahsri0chgr06sqnh3d8fh7igmj59.apps.googleusercontent.com" data-callback="handleCredentialResponse"></div>
         <div class="g_id_signin" data-type="standard"></div>
         <div id="user-info"><img id="user-pic" src=""><span id="user-name"></span></div>
     </div>
@@ -38,7 +54,8 @@
         <div id="result-area"><div class="heart-btn" id="heart" onclick="toggleSave()">♥</div><div id="ai-content"></div></div>
     </div>
     <script>
-        const GEMINI_API_KEY = "AIzaSyDI4acX8Xb9ysMBZjKh5OyY4VTaY-kRwqA"; // 본인의 API 키로 교체하세요.
+        // API 키 입력 (양옆에 공백이 없는지 꼭 확인하세요!)
+        const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"; 
         let currentResult = "";
 
         async function askGemini() {
@@ -48,11 +65,10 @@
             document.getElementById('result-area').style.display = "block";
             aiContent.innerHTML = "<b>분석 중이야... ✨</b>";
 
-            // 115번 줄 근처: 에러를 방지하기 위해 v1 경로를 사용하여 주소를 생성합니다.
+            // 404 에러 방지를 위한 가장 정확한 URL 형식
             const API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=" + GEMINI_API_KEY;
 
             try {
-                // 117번 줄: 실제로 AI 서버에 요청을 보내는 부분입니다.
                 const response = await fetch(API_URL, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -62,7 +78,7 @@
                 if(data.error) throw new Error(data.error.message);
                 currentResult = data.candidates[0].content.parts[0].text.replace(/[*#]/g, '');
                 aiContent.innerHTML = `<div style="font-weight:bold; color:#4285F4; margin-bottom:10px;">🌸 나의 추천</div>${currentResult}`;
-            } catch (e) { aiContent.innerHTML = "앗, 에러가 났어! 키와 주소를 확인해봐. 😢"; }
+            } catch (e) { aiContent.innerHTML = "앗, 에러가 났어! (" + e.message + ") 😢"; }
         }
 
         function toggleSave() {
